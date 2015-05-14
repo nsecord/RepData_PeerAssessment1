@@ -1,15 +1,27 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
----
+# Reproducible Research: Peer Assessment 1
 
 Before begininng the data analysis, we will load packages that will be useful 
 in our analysis. 
 
-```{r}
+
+```r
 library(dplyr)
+```
+
+```
+## 
+## Attaching package: 'dplyr'
+## 
+## The following object is masked from 'package:stats':
+## 
+##     filter
+## 
+## The following objects are masked from 'package:base':
+## 
+##     intersect, setdiff, setequal, union
+```
+
+```r
 library(lubridate)
 library(ggplot2)
 ```
@@ -21,7 +33,8 @@ data directly from the zip file using the function <code>unz()</code> inside
 our call to <code>read.csv()</code>.  We can create a data frame table with
 the <code>tbl_df()</code> that makes printing simpler.
 
-```{r}
+
+```r
 activity <- read.csv(unz("activity.zip", "activity.csv"),
                      header=TRUE, stringsAsFactors=FALSE)
 activity <- tbl_df(activity)
@@ -29,9 +42,41 @@ activity <- tbl_df(activity)
 
 Let's look at the data and check the class of each column to see what we have.
 
-```{r}
+
+```r
 activity
+```
+
+```
+## Source: local data frame [17,568 x 3]
+## 
+##    steps       date interval
+## 1     NA 2012-10-01        0
+## 2     NA 2012-10-01        5
+## 3     NA 2012-10-01       10
+## 4     NA 2012-10-01       15
+## 5     NA 2012-10-01       20
+## 6     NA 2012-10-01       25
+## 7     NA 2012-10-01       30
+## 8     NA 2012-10-01       35
+## 9     NA 2012-10-01       40
+## 10    NA 2012-10-01       45
+## ..   ...        ...      ...
+```
+
+```r
 lapply(activity,class)
+```
+
+```
+## $steps
+## [1] "integer"
+## 
+## $date
+## [1] "character"
+## 
+## $interval
+## [1] "integer"
 ```
 
 We have three columns in our data set: 
@@ -49,12 +94,30 @@ date time variable with <code>strptime()</code>. <code>strptime()</code>
 will append today's date so the last step is to use <code>format()</code> 
 to keep only the time as a string of the form *hh:mm*.
 
-```{r}
+
+```r
 activity$interval <-  activity$interval %>% 
                       formatC(width=4,format="d",flag="0") %>%
                       strptime(format="%H%M") %>% 
                       format(format="%H:%M")
 activity
+```
+
+```
+## Source: local data frame [17,568 x 3]
+## 
+##    steps       date interval
+## 1     NA 2012-10-01    00:00
+## 2     NA 2012-10-01    00:05
+## 3     NA 2012-10-01    00:10
+## 4     NA 2012-10-01    00:15
+## 5     NA 2012-10-01    00:20
+## 6     NA 2012-10-01    00:25
+## 7     NA 2012-10-01    00:30
+## 8     NA 2012-10-01    00:35
+## 9     NA 2012-10-01    00:40
+## 10    NA 2012-10-01    00:45
+## ..   ...        ...      ...
 ```
 
 ## What is mean total number of steps taken per day?
@@ -63,9 +126,27 @@ The first item we would like to look at is the total number of steps
 taken per day.  For that we simply group our data by date and then
 sum the number of steps.
 
-```{r}
+
+```r
 by_day <- summarise(group_by(activity, date),total_steps=sum(steps))
 by_day
+```
+
+```
+## Source: local data frame [61 x 2]
+## 
+##          date total_steps
+## 1  2012-10-01          NA
+## 2  2012-10-02         126
+## 3  2012-10-03       11352
+## 4  2012-10-04       12116
+## 5  2012-10-05       13294
+## 6  2012-10-06       15420
+## 7  2012-10-07       11015
+## 8  2012-10-08          NA
+## 9  2012-10-09       12811
+## 10 2012-10-10        9900
+## ..        ...         ...
 ```
 
 Note that in taking the sum above, we did not say to remove NA values.  
@@ -78,7 +159,8 @@ says "we don't know, we don't have any data".
 
 Let's plot a histogram of the total number of steps per day.  
 
-```{r}
+
+```r
 hist(by_day$total_steps,
      main="Histogram of the total number of steps per day",
      xlab="Total steps per day",
@@ -86,13 +168,27 @@ hist(by_day$total_steps,
      col="green")
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-6-1.png) 
+
 From the above histogram we can say that on average this person took
 between 10000 and 15000 steps per day. We can find out exactly what 
 that is by finding the mean and the median of the total steps per day.
 
-```{r}
+
+```r
 mean(by_day$total_steps, na.rm=TRUE)
+```
+
+```
+## [1] 10766.19
+```
+
+```r
 median(by_day$total_steps, na.rm=TRUE)
+```
+
+```
+## [1] 10765
 ```
 
 ## What is the average daily activity pattern?
@@ -102,16 +198,35 @@ group the data by time interval and average the number of steps.
 We can then convert the interval string to a POSIXct time using 
 <code>strptime()</code> and <code>format()</code>
 
-```{r}
+
+```r
 by_interval <- summarise(group_by(activity, interval),
                          average_steps = mean(steps, na.rm=TRUE))
 by_interval
 ```
 
+```
+## Source: local data frame [288 x 2]
+## 
+##    interval average_steps
+## 1     00:00     1.7169811
+## 2     00:05     0.3396226
+## 3     00:10     0.1320755
+## 4     00:15     0.1509434
+## 5     00:20     0.0754717
+## 6     00:25     2.0943396
+## 7     00:30     0.5283019
+## 8     00:35     0.8679245
+## 9     00:40     0.0000000
+## 10    00:45     1.4716981
+## ..      ...           ...
+```
+
 To plot this and see the pattern, we need to convert the interval
 string to a POSIXct time.
 
-```{r}
+
+```r
 plot(as.POSIXct(by_interval$interval, format="%H:%M"),
      by_interval$average_steps,
      type= "l",
@@ -121,17 +236,23 @@ plot(as.POSIXct(by_interval$interval, format="%H:%M"),
      col="Blue")
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-9-1.png) 
+
 We can see in the plot that there is a big peak in activity in the morning,
 probably as the person is on their way to work or school.  To find when that
-peak occurs, we simply need to filter on the maximum value of average_steps.
+peak occurs, we simply need to filter on the maximum value of our average_steps.
 
-```{r}
+
+```r
 by_interval %>% filter(average_steps == max(average_steps))
 ```
 
-The peak of activity occurs at 8:35 am where there are approximately 207 steps
-in that 5 minute interval.
-
+```
+## Source: local data frame [1 x 2]
+## 
+##   interval average_steps
+## 1    08:35      206.1698
+```
 
 ## Imputing missing values
 
