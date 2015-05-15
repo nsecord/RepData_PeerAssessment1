@@ -123,7 +123,7 @@ plot(as.POSIXct(by_interval$interval, format="%H:%M"),
 
 We can see in the plot that there is a big peak in activity in the morning,
 probably as the person is on their way to work or school.  To find when that
-peak occurs, we simply need to filter on the maximum value of average_steps.
+peak occurs, we simply need to filter on the maximum value of *average_steps*.
 
 ```{r}
 by_interval %>% filter(average_steps == max(average_steps))
@@ -135,6 +135,41 @@ in that 5 minute interval.
 
 ## Imputing missing values
 
+As mentioned previously, there are a number of NA values in the data set.
+To see exactly how many, we can make an logical vector by passing our number
+of steps to the <code>is.na()</code> function and then summing over the
+vector.
 
+```{r}
+sum(is.na(activity$steps))
+```
+
+If we want to see on what days these occur, we can filter our *by_day*
+subset according to which days have a *total.steps* value of NA.
+
+```{r}
+by_day %>% filter(is.na(total_steps))
+```
+
+We see that there are 8 days where no data is available.  To impute 
+values for these missing measurements, we can group by the interval
+and then mutate steps using an *ifelse* statement.
+
+```{r}
+activity <- activity %>% 
+            group_by(interval) %>% 
+            mutate(steps=ifelse(is.na(steps), mean(steps, na.rm=TRUE), steps))
+activity
+```
+
+If we look at the first few lines of *activity* we can see that the values of
+steps that were NA now correspond to the values of average_steps computed in
+the last section.
 
 ## Are there differences in activity patterns between weekdays and weekends?
+
+We want to know if there are differences in activity during the weekday
+
+```{r}
+weekday_activity <- filter(activity, (wday(date) > 1) & (wday(date) < 7))
+```

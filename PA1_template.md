@@ -240,7 +240,7 @@ plot(as.POSIXct(by_interval$interval, format="%H:%M"),
 
 We can see in the plot that there is a big peak in activity in the morning,
 probably as the person is on their way to work or school.  To find when that
-peak occurs, we simply need to filter on the maximum value of our average_steps.
+peak occurs, we simply need to filter on the maximum value of *average_steps*.
 
 
 ```r
@@ -254,8 +254,78 @@ by_interval %>% filter(average_steps == max(average_steps))
 ## 1    08:35      206.1698
 ```
 
+The peak of activity occurs at 8:35 am where there are approximately 207 steps
+in that 5 minute interval.
+
+
 ## Imputing missing values
 
+As mentioned previously, there are a number of NA values in the data set.
+To see exactly how many, we can make an logical vector by passing our number
+of steps to the <code>is.na()</code> function and then summing over the
+vector.
 
+
+```r
+sum(is.na(activity$steps))
+```
+
+```
+## [1] 2304
+```
+
+If we want to see on what days these occur, we can filter our *by_day*
+subset according to which days have a *total.steps* value of NA.
+
+
+```r
+by_day %>% filter(is.na(total_steps))
+```
+
+```
+## Source: local data frame [8 x 2]
+## 
+##         date total_steps
+## 1 2012-10-01          NA
+## 2 2012-10-08          NA
+## 3 2012-11-01          NA
+## 4 2012-11-04          NA
+## 5 2012-11-09          NA
+## 6 2012-11-10          NA
+## 7 2012-11-14          NA
+## 8 2012-11-30          NA
+```
+
+We see that there are 8 days where no data is available.  To impute 
+values for these missing measurements, we can group by the interval
+and then mutate steps using an *ifelse* statement.
+
+
+```r
+activity <- activity %>% 
+            group_by(interval) %>% 
+            mutate(steps=ifelse(is.na(steps), mean(steps, na.rm=TRUE), steps))
+activity
+```
+
+```
+## Source: local data frame [17,568 x 3]
+## Groups: interval
+## 
+##        steps       date interval
+## 1  1.7169811 2012-10-01    00:00
+## 2  0.3396226 2012-10-01    00:05
+## 3  0.1320755 2012-10-01    00:10
+## 4  0.1509434 2012-10-01    00:15
+## 5  0.0754717 2012-10-01    00:20
+## 6  2.0943396 2012-10-01    00:25
+## 7  0.5283019 2012-10-01    00:30
+## 8  0.8679245 2012-10-01    00:35
+## 9  0.0000000 2012-10-01    00:40
+## 10 1.4716981 2012-10-01    00:45
+## ..       ...        ...      ...
+```
 
 ## Are there differences in activity patterns between weekdays and weekends?
+
+To look at the 
