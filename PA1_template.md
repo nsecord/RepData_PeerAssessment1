@@ -334,6 +334,52 @@ If we look at the first few lines of *activity* we can see that the values of
 steps that were NA now correspond to the values of average_steps computed in
 the last section.
 
+To see the impact of imputing the missing data, let's recompute our *by_day*
+data frame and plot another histogram of the total number of steps per day.
+
+
+```r
+by_day <- summarise(group_by(activity, date),total_steps=sum(steps))
+hist (by_day$total_steps, 
+      main="Histogram of the total number of steps per day",
+      xlab="Total steps per day",
+      ylab="Frequency (days)",
+      col="green")
+```
+
+![](PA1_template_files/figure-html/unnamed-chunk-14-1.png) 
+
+We can see that the form is very similar to our previous result except that
+the center bar of the histogram for 10000 ~ 15000 steps is now 8 days higher 
+due to the imputed data being based on the mean of the activity. 
+
+If we now recompute the *mean* and the *median* of the total number of steps per 
+day, we will see that they are the same.
+
+
+```r
+mean(by_day$total_steps)
+```
+
+```
+## [1] 10766.19
+```
+
+```r
+median(by_day$total_steps)
+```
+
+```
+## [1] 10766.19
+```
+
+Whereas previously we had only integer values for the total number of steps 
+per day, by imputing missing values with the average of activity in each 
+interval and then by summing over these, we now have 8 days that have 
+exactly the mean number of steps per day as we previously calculated.
+As a consequency, the median value concides with this mean.
+
+
 ## Are there differences in activity patterns between weekdays and weekends?
 
 We want to know if there are differences in activity during the weekday 
@@ -420,4 +466,4 @@ g + geom_line() +
     labs(y = "Number of steps")    
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-16-1.png) 
+![](PA1_template_files/figure-html/unnamed-chunk-18-1.png) 
