@@ -12,6 +12,7 @@ in our analysis.
 library(dplyr)
 library(lubridate)
 library(ggplot2)
+library(scales)
 ```
 
 ## Loading and preprocessing the data
@@ -79,11 +80,11 @@ says "we don't know, we don't have any data".
 Let's plot a histogram of the total number of steps per day.  
 
 ```{r}
-hist(by_day$total_steps,
-     main="Histogram of the total number of steps per day",
-     xlab="Total steps per day",
-     ylab="Frequency (days)",
-     col="green")
+hist (by_day$total_steps, 
+      main="Histogram of the total number of steps per day",
+      xlab="Total steps per day",
+      ylab="Frequency (days)",
+      col="green")
 ```
 
 From the above histogram we can say that on average this person took
@@ -112,13 +113,16 @@ To plot this and see the pattern, we need to convert the interval
 string to a POSIXct time.
 
 ```{r}
-plot(as.POSIXct(by_interval$interval, format="%H:%M"),
-     by_interval$average_steps,
-     type= "l",
-     main ="Plot of the average daily activity pattern",
-     xlab="Time of day",
-     ylab="Number of steps",
-     col="Blue")
+g <- ggplot(by_interval, 
+            aes(as.POSIXct(interval, format="%H:%M"), average_steps))
+
+g + geom_line() +
+    scale_x_datetime(breaks = date_breaks("4 hour"),
+                     minor_breaks = date_breaks("1 hour"),
+                     labels=date_format("%H:%M")) +
+    labs(title = "Plot of the average daily activity pattern") +
+    labs(x = "Time of day") +
+    labs(y = "Number of steps")
 ```
 
 We can see in the plot that there is a big peak in activity in the morning,
@@ -168,8 +172,47 @@ the last section.
 
 ## Are there differences in activity patterns between weekdays and weekends?
 
-We want to know if there are differences in activity during the weekday
+We want to know if there are differences in activity during the weekday 
+compared to the weekend.  For that, we will add an extra field that takes
+on the values of *weekday* and *weekend*. 
+
+To determine determine if a date corresponds to a *weekday* or *weekend*, 
+we will use the <code>wday()</code> function from lubridate.  The 
+<code>wday()</code> function numbers the days from 1 to 7 with 1 being
+Sunday and 7 being Saturday. Therefore, the days numbered 2 through 6 will
+be classified as weekdays while days 1 and 7 are the weekend.
 
 ```{r}
-weekday_activity <- filter(activity, (wday(date) > 1) & (wday(date) < 7))
+activity$weekday_weekend <- ifelse((wday(activity$date) > 1) &
+                                   (wday(activity$date) < 7), 
+                                   "weekday", "weekend")
+activity
+```
+
+To see the difference in activity between weekdays and weekends, we want 
+to take an average of the number of steps in an interval but this time 
+with the added constraint of grouping by weekday and weekend.
+
+```{r}
+by_day_type <- summarise(group_by(activity, weekday_weekend, interval),
+                                  average_steps = mean(steps, na.rm=TRUE))
+by_day_type
+```
+
+We can now create a plot of the average daily activity and specify our
+*weekday_weekend* variable as the facet for creating separate plots for
+*weekday* and *weekend*.
+
+```{r}
+g <- ggplot(by_day_type, 
+            aes(as.POSIXct(interval, format="%H:%M"), average_steps))
+
+g + geom_line() +
+    facet_grid(weekday_weekend ~ .) + 
+    scale_x_datetime(breaks = date_breaks("4 hour"),
+                     minor_breaks = date_breaks("1 hour"),
+                     labels=date_format("%H:%M")) +
+    labs(title = "Comparison of activity between weekdays and weekends") +
+    labs(x = "Time of day") +
+    labs(y = "Number of steps")    
 ```
