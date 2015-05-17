@@ -31,8 +31,8 @@ library(scales)
 
 The data for this assessment is contained in a zip file.  We can load the
 data directly from the zip file using the function <code>unz()</code> inside 
-our call to <code>read.csv()</code>.  We can create a data frame table with
-the <code>tbl_df()</code> that makes printing simpler.
+our call to <code>read.csv()</code>.  We can then create a data frame table 
+with the <code>tbl_df()</code> that will make printing simpler.
 
 
 ```r
@@ -150,13 +150,13 @@ by_day
 ## ..        ...         ...
 ```
 
-Note that in taking the sum above, we did not say to remove NA values.  
-The reason for this is that in the dataset there are entire days with
-no data points and if we say to ignore NA values, the sum of the steps
-for that day would be be zero. A zero could be interpreted as saying 
-that the person stayed in one position and did not take a single 
-step for an entire day.  That is quite different from an NA value which
-says "we don't know, we don't have any data".
+Note that in taking the sum above, we did not say to remove NA values. The 
+reason for this is that in the dataset there are entire days with no data
+points and if we say to ignore NA values, the sum of the steps for that day
+would be zero. A zero could be interpreted as saying that the person stayed 
+in one position and did not take a single step for an entire day.  That is 
+quite different from an NA value which says "we don't know, we don't have
+any data".
 
 Let's plot a histogram of the total number of steps per day.  
 
@@ -191,6 +191,9 @@ median(by_day$total_steps, na.rm=TRUE)
 ```
 ## [1] 10765
 ```
+
+The mean is only slighlty larger than the median at 10766.19 steps for the
+mean versus 10765 for the median.
 
 ## What is the average daily activity pattern?
 
