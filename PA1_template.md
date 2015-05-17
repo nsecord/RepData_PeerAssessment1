@@ -421,6 +421,30 @@ activity
 ## ..       ...        ...      ...             ...
 ```
 
+If we look at the class of our newly created variable we will see that it
+is a character variable and not a factor as we would like.
+
+
+```r
+class(activity$weekday_weekend)
+```
+
+```
+## [1] "character"
+```
+
+To create a factor variable, we need simply to apply a transform to factor.
+
+
+```r
+activity <- transform(activity, weekday_weekend = factor(weekday_weekend))
+class(activity$weekday_weekend)
+```
+
+```
+## [1] "factor"
+```
+
 To see the difference in activity between weekdays and weekends, we want 
 to take an average of the number of steps in an interval but this time 
 with the added constraint of grouping by weekday and weekend.
@@ -469,4 +493,4 @@ g + geom_line() +
     labs(y = "Number of steps")    
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-18-1.png) 
+![](PA1_template_files/figure-html/unnamed-chunk-20-1.png) 

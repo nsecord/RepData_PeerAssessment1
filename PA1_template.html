@@ -289,6 +289,13 @@ activity</code></pre>
 ## 9  0.0000000 2012-10-01    00:40         weekday
 ## 10 1.4716981 2012-10-01    00:45         weekday
 ## ..       ...        ...      ...             ...</code></pre>
+<p>If we look at the class of our newly created variable we will see that it is a character variable and not a factor as we would like.</p>
+<pre class="r"><code>class(activity$weekday_weekend)</code></pre>
+<pre><code>## [1] &quot;character&quot;</code></pre>
+<p>To create a factor variable, we need simply to apply a transform to factor.</p>
+<pre class="r"><code>activity &lt;- transform(activity, weekday_weekend = factor(weekday_weekend))
+class(activity$weekday_weekend)</code></pre>
+<pre><code>## [1] &quot;factor&quot;</code></pre>
 <p>To see the difference in activity between weekdays and weekends, we want to take an average of the number of steps in an interval but this time with the added constraint of grouping by weekday and weekend.</p>
 <pre class="r"><code>by_day_type &lt;- summarise(group_by(activity, weekday_weekend, interval),
                                   average_steps = mean(steps, na.rm=TRUE))
